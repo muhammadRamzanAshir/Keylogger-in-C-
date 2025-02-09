@@ -1,8 +1,5 @@
-# Keylogger in C++ 
 
-|--------------------------------------------------------------------------------------------------------------|
 |                                           LIBRARY INFORMATION                                                |
-|--------------------------------------------------------------------------------------------------------------|
 LIB Information:
 1) <iostream>:
     -> provide input and output functionality using std::cout and std::cin.
@@ -29,9 +26,7 @@ why we removed GetAsyncKeyState() from <winuser.h> ?
 -> we removed GetAsyncKeyState() from the keylogger code because it was previously being used  to detact wheather the key was
     pressed or not while checking the key states for every key press. we use windows hooks (SetWindowsHookEx) to capture key
     events efficiently
-|--------------------------------------------------------------------------------------------------------------|
 |                                         Logging Function                                                     |
-|--------------------------------------------------------------------------------------------------------------|
 Explanation of each parameter:
 keyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, Keylogger::keyLoggerProc, NULL, 0);
     ->Global Keyboared hook in  windows API
@@ -79,57 +74,3 @@ Checking if the hook was successfully installed ?
 if(!keyboardHook){
     cout<< "Failed to install hook!" <<endl;
 }
-
-
-
-This combination of headers is typically used in keyloggers, automation scripts, or custom Windows applications.
-GetAsyncKeyState():
-    -> This Function is part of the windows API;
-    -> it check that the (key ascii code) is currently pressed
-    -> it return 16-bit word.
-        -> MSB-15th bit:
-            -> set to 1 if the key was pressed after the last call to GetAsyncKeyState()
-        -> LSB-0th-bit:
-            -> set to 1 if the key was currently key held down
-
-why -32767 ?
-    -> Hexadecimal is 0x8001
-    -> MSB=1 The Key is Pressed
-    -> LSB=1 The Key is HOLD.
-
-if (GetAsyncKeyState(keys) == -32767):
-    -> like (MSB = 1 and LSB = 1) key was pressed 
-
-(keys > 64 && keys < 91) && !(GetAsyncKeyState(0x10)):
-    -> detact the lower case 0x10-hex value of shift
-    -> 0x10 -> shift key value like vk_shift
-
-Stealth:
-1) HWND stealth:
-    ->HWND (Handle to window) is window API data type that store to a windows.
-    ->stealth is the variable that will hold the handle of console
-2) AllocConsole():
-    -> this function create new console window
-    -> if you run the program as a console, that's not required.
-3) stealth = FindWindowA("ConsoleWindowClass", NULL);
-    -> FindWindowA() search for a window with the specific class name.
-    ->"ConsoleWindowClass"  is the class name for the console windows in windows
-    -> this retrive handle  of the console and store it in stealth
-4) ShowWindow(stealth, 0);
-    -> is used to change the visibility of a windows
-    -> the first argument (stealth) is the window handle
-    -> the first window argument (0) means hide the console.
-Purpose of this code
-It hides the console window so that the keylogger runs silently in the background. If you run this program, 
-the console will not be visible to the user.
-
-NOTES:
-tilde (~):
-    -> indicates that is a distructor.
-    -> destructor is a special function of a class that is automatically function called when object is destroyed
-    -> it free resources(closing file, releasing memory or stopping background process)
-    -> prefix (~)
-why is ~keylogger()?
-    -> prevents memory leaks
-    -> ensure files are properly closed
-    -> Helps in debugging by logging when the programs stop
